@@ -1,14 +1,19 @@
 import React from 'react';
 import './App.css';
+import Alert from './components/layouts/Alert';
 import NavBar  from './components/layouts/NavBar';
 import { Search }  from './components/users/Search';
 import UserItem from './components/users/UserItem';
 import Users from './components/users/Users';
+import { BrowserRouter, Switch, Route} from 'react-router-dom';
+import { Fragment } from 'react';
+import About from '../src/components/pages/About';
 
 class App extends React.Component {
   state = {
     users: [],
-    loading : false
+    loading : false,
+    alert: null
   }
 
   async componentDidMount(){
@@ -28,17 +33,38 @@ class App extends React.Component {
     const res = await fetch(`https://api.github.com/search/users?q=${text}`).then(function(response){
       return response.json();
     });
-    console.log(res);
     // reset state for loading and users
     this.setState({users: res.items, loading : false});
+  }
+
+  //Set Alert
+  setAlert = (message, type) => {
+    this.setState({ alert : {message : message, type : type}});
+    setTimeout(function(){
+        const alertElement = document.getElementById("alert-container");
+        alertElement.className += " alert-message ";
+        alertElement.style.display = 'none';
+    }, 1500);
   }
 
   render() {
     return (
       <div>
-        <NavBar title="Github Finder"></NavBar>
-        <Search searchUsers={this.searchUsers}/>
-        <Users loading={this.state.loading} users={this.state.users}></Users>
+        <BrowserRouter>
+          <NavBar title="Github Finder"></NavBar>
+          <Alert alert={this.state.alert}></Alert>
+            <Switch>
+              <Route exact path="/" render={props => (
+                <Fragment>
+                  <Search searchUsers={this.searchUsers} clearUsers={this.componentDidMount.bind(this)} setAlert={this.setAlert}/>
+                  <Users loading={this.state.loading} users={this.state.users}></Users>
+                </Fragment>
+              )}>
+
+              </Route>
+              <Route exact path="/about" component={About}/>
+            </Switch>          
+        </BrowserRouter>
       </div>
     )
   };
