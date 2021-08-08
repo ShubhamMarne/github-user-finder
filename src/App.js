@@ -5,6 +5,7 @@ import NavBar  from './components/layouts/NavBar';
 import { Search }  from './components/users/Search';
 import UserItem from './components/users/UserItem';
 import Users from './components/users/Users';
+import User from './components/users/User';
 import { BrowserRouter, Switch, Route} from 'react-router-dom';
 import { Fragment } from 'react';
 import About from '../src/components/pages/About';
@@ -12,6 +13,7 @@ import About from '../src/components/pages/About';
 class App extends React.Component {
   state = {
     users: [],
+    user: {},
     loading : false,
     alert: null
   }
@@ -24,6 +26,18 @@ class App extends React.Component {
     });
     // reset state for loading and users
     this.setState({users: res, loading : false});
+  }
+
+
+  //get single user details 
+  getUser = async (username) => {
+    // set state for loading 
+    this.setState({loading : true});
+    const res = await fetch(`https://api.github.com/users/${username}`).then(function(response){
+      return response.json();
+    });
+    // reset state for loading and users
+    this.setState({user: res, loading : false});
   }
 
   //search users
@@ -63,6 +77,9 @@ class App extends React.Component {
 
               </Route>
               <Route exact path="/about" component={About}/>
+              <Route exact path="/user/:login" render={props => (
+                <User { ...props } getUser={this.getUser} user={this.state.user} loading={this.state.loading}/>
+              )}></Route>
             </Switch>          
         </BrowserRouter>
       </div>
