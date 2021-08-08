@@ -2,7 +2,7 @@ import React from 'react';
 import './App.css';
 import Alert from './components/layouts/Alert';
 import NavBar  from './components/layouts/NavBar';
-import { Search }  from './components/users/Search';
+import  Search   from './components/users/Search';
 import UserItem from './components/users/UserItem';
 import Users from './components/users/Users';
 import User from './components/users/User';
