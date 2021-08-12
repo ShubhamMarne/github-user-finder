@@ -3,7 +3,7 @@ import UserItem from './UserItem'
 import Spinner from '../layouts/Spinner';
 
 const Users = ({ users, loading }) => {
-
+    console.log("length is "+ users.length);
     return (
         <div>
             {!loading && <div style={userStyles}>

@@ -1,87 +1,90 @@
 import React from 'react';
 import './App.css';
 import Alert from './components/layouts/Alert';
-import NavBar  from './components/layouts/NavBar';
-import  Search   from './components/users/Search';
+import NavBar from './components/layouts/NavBar';
+import Search from './components/users/Search';
 import UserItem from './components/users/UserItem';
 import Users from './components/users/Users';
 import User from './components/users/User';
-import { BrowserRouter, Switch, Route} from 'react-router-dom';
+import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import { Fragment } from 'react';
 import About from '../src/components/pages/About';
+import GithubState from './context/github/GithubState';
 
 class App extends React.Component {
   state = {
     users: [],
     user: {},
-    loading : false,
+    loading: false,
     alert: null
   }
 
-  async componentDidMount(){
+  async componentDidMount() {
     // set state for loading 
-    this.setState({loading : true});
-    const res = await fetch('https://api.github.com/users').then(function(response){
+    this.setState({ loading: true });
+    const res = await fetch('https://api.github.com/users').then(function (response) {
       return response.json();
     });
     // reset state for loading and users
-    this.setState({users: res, loading : false});
+    this.setState({ users: res, loading: false });
   }
 
 
   //get single user details 
   getUser = async (username) => {
     // set state for loading 
-    this.setState({loading : true});
-    const res = await fetch(`https://api.github.com/users/${username}`).then(function(response){
+    this.setState({ loading: true });
+    const res = await fetch(`https://api.github.com/users/${username}`).then(function (response) {
       return response.json();
     });
     // reset state for loading and users
-    this.setState({user: res, loading : false});
+    this.setState({ user: res, loading: false });
   }
 
-  //search users
-  searchUsers = async (text) => {
-    // set state for loading 
-    this.setState({loading : true});
-    const res = await fetch(`https://api.github.com/search/users?q=${text}`).then(function(response){
-      return response.json();
-    });
-    // reset state for loading and users
-    this.setState({users: res.items, loading : false});
-  }
+  
 
   //Set Alert
   setAlert = (message, type) => {
-    this.setState({ alert : {message : message, type : type}});
-    setTimeout(function(){
-        const alertElement = document.getElementById("alert-container");
-        alertElement.className += " alert-message ";
-        alertElement.style.display = 'none';
+    this.setState({ alert: { message: message, type: type } });
+    setTimeout(function () {
+      const alertElement = document.getElementById("alert-container");
+      alertElement.className += " alert-message ";
+      alertElement.style.display = 'none';
     }, 1500);
   }
+  searchUsers = async (text) => {
+    // set state for loading 
+    this.setState({ loading: true });
+    const res = await fetch(`https://api.github.com/search/users?q=${text}`).then(function (response) {
+    return response.json();
+    });
+    // reset state for loading and users
+    this.setState({ users: res.items, loading: false });
+}
 
   render() {
     return (
       <div>
-        <BrowserRouter>
-          <NavBar title="Github Finder"></NavBar>
-          <Alert alert={this.state.alert}></Alert>
+        <GithubState>
+          <BrowserRouter>
+            <NavBar title="Github Finder"></NavBar>
+            <Alert alert={this.state.alert}></Alert>
             <Switch>
               <Route exact path="/" render={props => (
                 <Fragment>
-                  <Search searchUsers={this.searchUsers} clearUsers={this.componentDidMount.bind(this)} setAlert={this.setAlert}/>
+                  <Search clearUsers={this.componentDidMount.bind(this)}  searchUsers={this.searchUsers} setAlert={this.setAlert} />
                   <Users loading={this.state.loading} users={this.state.users}></Users>
                 </Fragment>
               )}>
 
               </Route>
-              <Route exact path="/about" component={About}/>
+              <Route exact path="/about" component={About} />
               <Route exact path="/user/:login" render={props => (
-                <User { ...props } getUser={this.getUser} user={this.state.user} loading={this.state.loading}/>
+                <User {...props} getUser={this.getUser} user={this.state.user} loading={this.state.loading} />
               )}></Route>
-            </Switch>          
-        </BrowserRouter>
+            </Switch>
+          </BrowserRouter>
+        </GithubState>
       </div>
     )
   };
